@@ -50,6 +50,9 @@ CATEGORY_BASE = {
     "Hospitality & Real Estate": 66,
     "BPO/Logistics/Print": 66,
     "Finance & Professional": 64,
+    "Government & PSU": 70,
+    "Automobile Dealership": 68,
+    "Retail & Supermarket": 66,
 }
 
 SUFFIX_TOKENS = {
