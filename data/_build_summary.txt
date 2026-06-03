@@ -1,12 +1,12 @@
 === LEAD BUILD SUMMARY ===
 Source files       : 23
-Rows read          : 1063
-Dropped (no source): 12
+Rows read          : 1074
+Dropped (no source): 0
 Dropped (no name)  : 0
-Duplicates merged  : 28
-FINAL UNIQUE LEADS : 1023
-  with phone/email : 443 (43%)
-  SME-direct (you can supply): 785
+Duplicates merged  : 31
+FINAL UNIQUE LEADS : 1043
+  with phone/email : 453 (43%)
+  SME-direct (you can supply): 805
     Skip - govt/tender: 35
     Skip - large enterprise: 6
     Skip - national chain: 42
@@ -14,8 +14,8 @@ FINAL UNIQUE LEADS : 1023
 
 By tier:
   Tier A: 241
-  Tier B: 582
-  Tier C: 200
+  Tier B: 589
+  Tier C: 213
 
 By category:
   SME Manufacturing & Jobwork        64
@@ -34,13 +34,13 @@ By category:
   Lab-Grown Diamond                  45
   Local Retail SME                   45
   Automobile Dealership              43
+  Diamond/Jewellery/Textile Micro-SME 42
   Diamond & Bourse                   41
   Finance & Professional             41
   Retail & Supermarket               36
   Jewellery                          36
   Government & PSU                   35
   BPO/Logistics/Print                31
-  Diamond/Jewellery/Textile Micro-SME 22
 
 Per source file (kept):
   01_it_software.psv                 48
@@ -65,4 +65,4 @@ Per source file (kept):
   20_sme_local_retail.psv            45
   21_sme_professional_services.psv   54
   22_sme_manufacturing_jobwork.psv   64
-  23_sme_diamond_textile_micro.psv   26
+  23_sme_diamond_textile_micro.psv   49
