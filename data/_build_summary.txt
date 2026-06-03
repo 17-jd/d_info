@@ -1,16 +1,16 @@
 === LEAD BUILD SUMMARY ===
-Source files       : 14
-Rows read          : 639
+Source files       : 16
+Rows read          : 720
 Dropped (no source): 0
 Dropped (no name)  : 0
 Duplicates merged  : 11
-FINAL UNIQUE LEADS : 628
-  with phone/email : 228 (36%)
+FINAL UNIQUE LEADS : 709
+  with phone/email : 258 (36%)
 
 By tier:
-  Tier A: 182
-  Tier B: 355
-  Tier C: 91
+  Tier A: 218
+  Tier B: 397
+  Tier C: 94
 
 By category:
   Textile Manufacturing              51
@@ -21,10 +21,12 @@ By category:
   Media/Video/Photo                  48
   Lab-Grown Diamond                  47
   Architecture & CAD/Engineering     47
+  GIDC Manufacturing                 46
   Textile Trade & Design             46
-  GIDC Manufacturing                 44
   Finance & Professional             43
+  Automobile Dealership              43
   Diamond & Bourse                   41
+  Retail & Supermarket               36
   Jewellery                          36
   BPO/Logistics/Print                31
 
@@ -40,6 +42,8 @@ Per source file (kept):
   09_healthcare.psv                  50
   10_education.psv                   48
   11_finance_professional.psv        43
-  12_gidc_manufacturing.psv          44
+  12_gidc_manufacturing.psv          46
   13_hospitality_realestate.psv      48
   14_bpo_logistics_print.psv         31
+  15_automobile.psv                  43
+  16_retail_chains.psv               36
