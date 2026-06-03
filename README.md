@@ -32,8 +32,8 @@ fast, and with zero wasted dials on fake numbers.
 
 ## 📊 The database at a glance
 
-- **1,019 unique, source-verified leads** across **23 Surat business segments**.
-- **781 are tagged `SME - direct`** — small / owner-run businesses a small
+- **1,023 unique, source-verified leads** across **23 Surat business segments**.
+- **785 are tagged `SME - direct`** — small / owner-run businesses a small
   vendor can actually supply. The other ~238 (government/tender, PSUs, national
   chains like D-Mart/Reliance, and very-large firms) are tagged `Skip - …`,
   kept in the master file but **excluded from your SME sheet**. (This split is a
@@ -41,10 +41,10 @@ fast, and with zero wasted dials on fake numbers.
   mis-tags anyone.)
 - 👉 **Start with [`data/leads_sme_priority.csv`](data/leads_sme_priority.csv)** —
   the SME-only list, sorted hottest-first with contact-found leads on top.
-- **Tiers:** 241 Tier-A · 579 Tier-B · 199 Tier-C.
-- **~42% carry a phone/email** from a source, and every captured **mobile gets a
+- **Tiers:** 241 Tier-A · 582 Tier-B · 200 Tier-C.
+- **~43% carry a phone/email** from a source, and every captured **mobile gets a
   ready `https://wa.me/91…` WhatsApp link** in the `whatsapp` column. The rest
-  are existence-verified — confirm the number via `source_url` before calling
+  are existence-verified — confirm the number via `source_url` before calling.
   (`WebFetch` was blocked in the build environment, so this is conservative;
   most "pending" numbers are a 10-second Google-Business lookup away).
 
@@ -55,7 +55,7 @@ fast, and with zero wasted dials on fake numbers.
 | File | What it is | Use it for |
 |---|---|---|
 | **`data/leads_sme_priority.csv`** | ⭐ **Start here.** Only the `SME - direct` leads (small/owner-run — you can supply), sorted hottest-first with contact-found on top. Has the `whatsapp` click-link column. | Your real working list. |
-| **`data/leads_master.csv`** | All 1,019 leads incl. the big/tender/chain ones (tagged in `supplier_fit`), de-duplicated, scored, tiered, sorted. Columns for *who to contact / why / what they need*. | Full picture; filter by `supplier_fit`, category or area. |
+| **`data/leads_master.csv`** | All 1,023 leads incl. the big/tender/chain ones (tagged in `supplier_fit`), de-duplicated, scored, tiered, sorted. Columns for *who to contact / why / what they need*. | Full picture; filter by `supplier_fit`, category or area. |
 | **`data/leads_tier_A_callfirst.csv`** | The Tier-A subset — highest-potential, call these first. | Your week-1 hit list. |
 | **`data/leads_raw_combined.csv`** | The raw collected view (name, category, area, contact, source) with no scoring. | Auditing / importing into a CRM raw. |
 | `data/categories.csv` | The 23 target segments: why each is expanding/upgrading, what to pitch, who decides, Surat hotspots. | Territory & pitch planning. |
