@@ -154,6 +154,52 @@ def to_whatsapp(phone):
     return ""
 
 
+# --- WhatsApp campaign message builder ---------------------------------
+SHARE_LINK = "https://share.google/aBy3gHFiA7v4CMu4g"
+CATEGORY_PITCH = {
+    "Lab-Grown Diamond": "diamond-planning workstations, secure CCTV & networking",
+    "Diamond & Bourse": "diamond-planning workstations, high-security CCTV & networking",
+    "Diamond/Jewellery/Textile Micro-SME": "billing/design PCs, CCTV & networking",
+    "Jewellery": "showroom CCTV, billing PCs & networking",
+    "IT & Software": "developer workstations, servers & networking",
+    "Architecture & CAD/Engineering": "fast CAD/3D workstations & storage",
+    "Media/Video/Photo": "video-editing workstations & fast storage",
+    "Textile Manufacturing": "shop-floor CCTV, billing PCs & networking",
+    "Textile Trade & Design": "billing PCs, CCTV & Wi-Fi",
+    "Healthcare": "billing/reception PCs, CCTV & networking",
+    "Wellness & Clinics SME": "reception/billing PCs, CCTV & Wi-Fi",
+    "Education": "computer labs, campus Wi-Fi & CCTV",
+    "Finance & Professional": "reliable PCs, data backup & CCTV",
+    "Professional Services SME": "office PCs, data backup & CCTV",
+    "GIDC Manufacturing": "ERP servers, plant CCTV & networking",
+    "SME Manufacturing & Jobwork": "billing PCs, shop CCTV & networking",
+    "Hospitality & Real Estate": "CCTV, Wi-Fi & front-desk PCs",
+    "BPO/Logistics/Print": "bulk PCs, networking & CCTV",
+    "Automobile Dealership": "showroom CCTV, billing PCs & networking",
+    "Retail & Supermarket": "billing/POS PCs, CCTV & networking",
+    "Local Retail SME": "billing/POS PCs, CCTV & networking",
+    "Food & Hospitality SME": "POS billing, CCTV & Wi-Fi",
+}
+
+
+def short_name(name):
+    """A clean greeting name: drop parenthetical / corporate-suffix clutter."""
+    n = name.split("(")[0].split(" - ")[0].strip().rstrip(",").strip()
+    n = re.sub(r"\s+(pvt\.?\s*)?(private\s+)?(ltd\.?|limited|llp)\.?$", "",
+               n, flags=re.I).strip()
+    return n if len(n) >= 2 else name.strip()
+
+
+def build_message(rec):
+    """Short, personalised, single-line WhatsApp message for one lead."""
+    name = short_name(rec.get("company_name", ""))
+    pitch = CATEGORY_PITCH.get(rec.get("category", ""),
+                               "computers, CCTV & networking")
+    return (f"Namaste {name}! \U0001F64F We are a Surat IT hardware & CCTV "
+            f"supplier providing {pitch}, with quick on-site service & AMC. "
+            f"Great fit for {name}. Reply for a quick quote! More: {SHARE_LINK}")
+
+
 SUFFIX_TOKENS = {
     "pvt", "private", "ltd", "limited", "llp", "inc", "co", "company",
     "the", "and", "&", "india", "surat", "enterprise", "enterprises",
@@ -327,6 +373,18 @@ def main():
         for rec in sme:
             w.writerow(rec)
 
+    # ---- Write WhatsApp campaign CSV (3 cols: name, number, message). -------
+    # Only SME-direct leads that have a WhatsApp-capable mobile number, so you
+    # never message a giant/govt/chain you cannot supply. Ready for bulk tools.
+    campaign = [r for r in sme if r.get("whatsapp")]
+    camp_path = os.path.join(OUT_DIR, "whatsapp_campaign.csv")
+    with open(camp_path, "w", newline="", encoding="utf-8") as fh:
+        w = csv.writer(fh)
+        w.writerow(["business_name", "whatsapp_number", "message"])
+        for rec in campaign:
+            number = rec["whatsapp"].rsplit("/", 1)[-1]  # 91XXXXXXXXXX
+            w.writerow([rec["company_name"], number, build_message(rec)])
+
     # ---- Write raw combined (as-collected, minimal) CSV. ----
     raw_cols = ["company_name", "category", "sub_category", "area", "address",
                 "website", "phone", "email", "source_url", "source_type"]
@@ -358,6 +416,9 @@ def main():
     lines.append(f"  with phone/email : {with_contact} ({100*with_contact//max(1,len(final))}%)")
     sme_n = sum(1 for r in final if r["supplier_fit"] == "SME - direct")
     lines.append(f"  SME-direct (you can supply): {sme_n}")
+    camp_n = sum(1 for r in final
+                 if r["supplier_fit"] == "SME - direct" and r.get("whatsapp"))
+    lines.append(f"  WhatsApp campaign rows: {camp_n}")
     skip_kinds = {}
     for r in final:
         if r["supplier_fit"] != "SME - direct":
@@ -380,7 +441,7 @@ def main():
     with open(os.path.join(OUT_DIR, "_build_summary.txt"), "w", encoding="utf-8") as fh:
         fh.write(summary + "\n")
     print(summary)
-    print(f"\nWrote:\n  {master_path}\n  {sme_path}\n  {tierA_path}\n  {raw_path}")
+    print(f"\nWrote:\n  {master_path}\n  {sme_path}\n  {camp_path}\n  {tierA_path}\n  {raw_path}")
 
 
 if __name__ == "__main__":
