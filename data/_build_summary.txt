@@ -1,0 +1,45 @@
+=== LEAD BUILD SUMMARY ===
+Source files       : 14
+Rows read          : 639
+Dropped (no source): 0
+Dropped (no name)  : 0
+Duplicates merged  : 11
+FINAL UNIQUE LEADS : 628
+  with phone/email : 228 (36%)
+
+By tier:
+  Tier A: 182
+  Tier B: 355
+  Tier C: 91
+
+By category:
+  Textile Manufacturing              51
+  Healthcare                         50
+  Education                          48
+  Hospitality & Real Estate          48
+  IT & Software                      48
+  Media/Video/Photo                  48
+  Lab-Grown Diamond                  47
+  Architecture & CAD/Engineering     47
+  Textile Trade & Design             46
+  GIDC Manufacturing                 44
+  Finance & Professional             43
+  Diamond & Bourse                   41
+  Jewellery                          36
+  BPO/Logistics/Print                31
+
+Per source file (kept):
+  01_it_software.psv                 48
+  02_labgrown_diamond.psv            48
+  03_diamond_bourse.psv              47
+  04_jewellery.psv                   38
+  05_architecture_cad.psv            47
+  06_media_video_photo.psv           48
+  07_textile_mfg.psv                 53
+  08_textile_trade_design.psv        46
+  09_healthcare.psv                  50
+  10_education.psv                   48
+  11_finance_professional.psv        43
+  12_gidc_manufacturing.psv          44
+  13_hospitality_realestate.psv      48
+  14_bpo_logistics_print.psv         31
