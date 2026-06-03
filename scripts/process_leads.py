@@ -53,7 +53,106 @@ CATEGORY_BASE = {
     "Government & PSU": 70,
     "Automobile Dealership": 68,
     "Retail & Supermarket": 66,
+    "Food & Hospitality SME": 64,
+    "Wellness & Clinics SME": 64,
+    "Local Retail SME": 62,
+    "Professional Services SME": 63,
+    "SME Manufacturing & Jobwork": 66,
+    "Diamond/Jewellery/Textile Micro-SME": 64,
 }
+
+# --- SME supplier-fit classifier ---------------------------------------
+# Flags leads a SMALL local IT-hardware vendor can realistically supply
+# (owner/proprietor-led SMEs) vs. those that buy via tenders / central
+# procurement (govt, PSUs, listed giants, national chains) and rarely entertain
+# a small supplier. Heuristic on names + size hints; tweak the lists freely.
+ENTERPRISE_TOKENS = [
+    "arcelormittal", "nippon", "larsen & toubro", "larsen and toubro", "l&t",
+    "l & t", "ongc", "oil and natural gas", "gail", "ntpc", "kribhco", "gipcl",
+    "gsecl", "gseg", "adani", "reliance industries", "hazira manufacturing",
+    "essar", "ultratech", "ambuja", "vedanta", "tata steel", "jindal",
+]
+CHAIN_TOKENS = [
+    "dmart", "d-mart", "d mart", "avenue supermart", "reliance smart",
+    "reliance retail", "reliance digital", "reliance trends", "reliance jewels",
+    "croma", "vijay sales", "pantaloons", "westside", "zudio", "lifestyle store",
+    "shoppers stop", "fashion factory", "trends footwear", "v-mart", "vmart",
+    "bata", "metro shoes", "star bazaar", "more retail", "apollo pharmacy",
+    "medplus", "wellness forever", "tanishq", "malabar", "kalyan jewell",
+    "caratlane", "bluestone", "mia by", "orra ", "tbz", "sales india",
+    "spice hotspot", "dtdc", "v-trans", "vrl ", "patel roadways", "gati",
+    "blue dart", "nilkamal", "pepperfry", "wooden street", "durian",
+    "godrej interio", "hometown",
+]
+# Strong "big / tender-style buyer" signals. Matched against curated fields
+# (name, sub_category, size_hint, expansion_signal) -- NOT free-text notes --
+# to avoid false positives like "listed on JustDial".
+VERYLARGE_TOKENS = [
+    "very large", " psu", "maharatna", "navratna", "miniratna", " mnc",
+    "multinational", "pan-india", "pan india", "nationwide", "fortune 500",
+    "publicly listed", "stock exchange", "bse:", "nse:", "listed", "drhp",
+    "ipo plan", "world's largest", "india's largest", "largest", "sightholder",
+    " sez", "master artisans", "super speciality", "super-speciality",
+    "multispeciality", "multi-speciality", "multispecialty", "multi super",
+    "nabh", "university", "polytechnic", "institute of national importance",
+    "deemed university", "thousands of",
+]
+BIGNUM_RE = re.compile(
+    r"(\d{2,6})\s*[+,]?\s*[-\s]?\s*"
+    r"(employee|staff|artisan|worker|bed|reactor|branch|store|outlet|seat|loom)s?",
+    re.I)
+BIGNUM_THRESHOLDS = {
+    "bed": 100, "reactor": 100, "branch": 20, "store": 20, "outlet": 20,
+    "employee": 300, "staff": 300, "artisan": 300, "worker": 300,
+    "seat": 300, "loom": 200,
+}
+
+
+def supplier_fit(rec):
+    """Return an SME-fit tag: 'SME - direct' or a 'Skip - ...' reason.
+
+    Flags govt/tender, listed giants, PSUs, national chains and clearly-large
+    firms that a SMALL local vendor cannot realistically supply. Heuristic --
+    adjust the token lists / thresholds to taste.
+    """
+    if rec.get("category") == "Government & PSU":
+        return "Skip - govt/tender"
+    name = rec.get("company_name", "").lower()
+    if any(t in name for t in ENTERPRISE_TOKENS):
+        return "Skip - large enterprise"
+    if any(t in name for t in CHAIN_TOKENS):
+        return "Skip - national chain"
+    size = rec.get("size_hint", "").strip().lower()
+    if size.startswith("very large") or size.startswith("large"):
+        return "Skip - very large"
+    # Curated fields only (avoid noisy free-text notes).
+    blob = " ".join([
+        rec.get("company_name", ""), rec.get("sub_category", ""),
+        rec.get("size_hint", ""), rec.get("expansion_signal", ""),
+    ]).lower()
+    if any(t in blob for t in CHAIN_TOKENS):
+        return "Skip - national chain"
+    if any(t in blob for t in VERYLARGE_TOKENS):
+        return "Skip - very large"
+    for m in BIGNUM_RE.finditer(blob):
+        n = int(m.group(1))
+        unit = m.group(2).lower()
+        if n >= BIGNUM_THRESHOLDS.get(unit, 10 ** 9):
+            return "Skip - very large"
+    return "SME - direct"
+
+
+def to_whatsapp(phone):
+    """Derive a wa.me click-to-chat link from an Indian mobile number, else ''."""
+    digits = re.sub(r"\D", "", phone or "")
+    if len(digits) == 12 and digits.startswith("91"):
+        digits = digits[2:]
+    elif len(digits) == 11 and digits.startswith("0"):
+        digits = digits[1:]
+    if len(digits) == 10 and digits[0] in "6789":
+        return "https://wa.me/91" + digits
+    return ""
+
 
 SUFFIX_TOKENS = {
     "pvt", "private", "ltd", "limited", "llp", "inc", "co", "company",
@@ -188,12 +287,15 @@ def main():
     ))
     for idx, rec in enumerate(final, 1):
         rec["lead_id"] = f"L{idx:04d}"
+        rec["supplier_fit"] = supplier_fit(rec)
+        rec["whatsapp"] = to_whatsapp(rec.get("phone", ""))
 
     # ---- Write master (organised) CSV. ----
     master_cols = [
-        "lead_id", "priority_tier", "lead_score", "company_name", "category",
-        "sub_category", "area", "phone", "email", "website", "hardware_need",
-        "buying_trigger", "expansion_signal", "contact_approach",
+        "lead_id", "priority_tier", "supplier_fit", "lead_score",
+        "company_name", "category", "sub_category", "area",
+        "contact_approach", "phone", "whatsapp", "email", "website",
+        "hardware_need", "buying_trigger", "expansion_signal",
         "verification_status", "address", "source_type", "source_url",
         "size_hint", "notes",
     ]
@@ -211,6 +313,18 @@ def main():
         w = csv.DictWriter(fh, fieldnames=master_cols, extrasaction="ignore")
         w.writeheader()
         for rec in tierA:
+            w.writerow(rec)
+
+    # ---- Write SME-priority CSV (leads a SMALL vendor can actually supply). --
+    sme = [r for r in final if r["supplier_fit"] == "SME - direct"]
+    sme.sort(key=lambda r: (-r["lead_score"],
+                            0 if (r["phone"] or r["email"]) else 1,
+                            r["category"], r["company_name"].lower()))
+    sme_path = os.path.join(OUT_DIR, "leads_sme_priority.csv")
+    with open(sme_path, "w", newline="", encoding="utf-8") as fh:
+        w = csv.DictWriter(fh, fieldnames=master_cols, extrasaction="ignore")
+        w.writeheader()
+        for rec in sme:
             w.writerow(rec)
 
     # ---- Write raw combined (as-collected, minimal) CSV. ----
@@ -242,6 +356,14 @@ def main():
     lines.append(f"Duplicates merged  : {stats['duplicates_merged']}")
     lines.append(f"FINAL UNIQUE LEADS : {len(final)}")
     lines.append(f"  with phone/email : {with_contact} ({100*with_contact//max(1,len(final))}%)")
+    sme_n = sum(1 for r in final if r["supplier_fit"] == "SME - direct")
+    lines.append(f"  SME-direct (you can supply): {sme_n}")
+    skip_kinds = {}
+    for r in final:
+        if r["supplier_fit"] != "SME - direct":
+            skip_kinds[r["supplier_fit"]] = skip_kinds.get(r["supplier_fit"], 0) + 1
+    for k in sorted(skip_kinds):
+        lines.append(f"    {k}: {skip_kinds[k]}")
     lines.append("")
     lines.append("By tier:")
     for t in ("A", "B", "C"):
@@ -258,7 +380,7 @@ def main():
     with open(os.path.join(OUT_DIR, "_build_summary.txt"), "w", encoding="utf-8") as fh:
         fh.write(summary + "\n")
     print(summary)
-    print(f"\nWrote:\n  {master_path}\n  {tierA_path}\n  {raw_path}")
+    print(f"\nWrote:\n  {master_path}\n  {sme_path}\n  {tierA_path}\n  {raw_path}")
 
 
 if __name__ == "__main__":
