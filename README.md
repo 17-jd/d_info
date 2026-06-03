@@ -1,4 +1,4 @@
-# Surat IT-Hardware Sales Leads — 740+ Verified, Scored & Prioritised
+# Surat IT-Hardware Sales Leads — 950+ Verified, SME-Focused, Scored & Prioritised
 
 A working lead database for an **IT-hardware reseller / system integrator in Surat**
 selling computers & high-end workstations, servers & storage, networking
@@ -32,18 +32,21 @@ fast, and with zero wasted dials on fake numbers.
 
 ## 📊 The database at a glance
 
-- **744 unique, source-verified leads** across **17 Surat business segments**.
-- **Tiers:** 235 Tier-A (call first) · 415 Tier-B · 94 Tier-C.
-- **~37%** already carry a phone/email pulled from a source; the rest are
-  existence-verified — confirm the number via `source_url` before calling (see
-  the verification protocol). `WebFetch` was blocked in the build environment,
-  so this fill-rate is conservative; most "pending" numbers are a 10-second
-  Google-Business lookup away.
-- **Convertibility tags:** owner-led SMBs (most diamond / textile / auto /
-  retail / architecture / media firms) are your *fast closes*. Large
-  enterprises & PSUs (Reliance / L&T / ONGC Hazira, SMC / Surat Smart City) are
-  *high-value but tender / GeM-based* — longer cycle, route via Purchase / IT /
-  Tender cell. Both are in the list so you can choose your battles.
+- **1,018 unique, source-verified leads** across **23 Surat business segments**.
+- **780 are tagged `SME - direct`** — small / owner-run businesses a small
+  vendor can actually supply. The other ~238 (government/tender, PSUs, national
+  chains like D-Mart/Reliance, and very-large firms) are tagged `Skip - …`,
+  kept in the master file but **excluded from your SME sheet**. (This split is a
+  heuristic in `scripts/process_leads.py` — tune the token lists if it
+  mis-tags anyone.)
+- 👉 **Start with [`data/leads_sme_priority.csv`](data/leads_sme_priority.csv)** —
+  the SME-only list, sorted hottest-first with contact-found leads on top.
+- **Tiers:** 241 Tier-A · 578 Tier-B · 199 Tier-C.
+- **~42% carry a phone/email** from a source, and every captured **mobile gets a
+  ready `https://wa.me/91…` WhatsApp link** in the `whatsapp` column. The rest
+  are existence-verified — confirm the number via `source_url` before calling
+  (`WebFetch` was blocked in the build environment, so this is conservative;
+  most "pending" numbers are a 10-second Google-Business lookup away).
 
 ---
 
@@ -51,10 +54,11 @@ fast, and with zero wasted dials on fake numbers.
 
 | File | What it is | Use it for |
 |---|---|---|
-| **`data/leads_master.csv`** | **The main sheet.** Every lead, de-duplicated, scored, tiered, and sorted (hottest first). Columns for *who to contact / why / what they need*. | Day-to-day working list. Open in Excel/Google Sheets, filter by category or area. |
+| **`data/leads_sme_priority.csv`** | ⭐ **Start here.** Only the `SME - direct` leads (small/owner-run — you can supply), sorted hottest-first with contact-found on top. Has the `whatsapp` click-link column. | Your real working list. |
+| **`data/leads_master.csv`** | All 1,018 leads incl. the big/tender/chain ones (tagged in `supplier_fit`), de-duplicated, scored, tiered, sorted. Columns for *who to contact / why / what they need*. | Full picture; filter by `supplier_fit`, category or area. |
 | **`data/leads_tier_A_callfirst.csv`** | The Tier-A subset — highest-potential, call these first. | Your week-1 hit list. |
 | **`data/leads_raw_combined.csv`** | The raw collected view (name, category, area, contact, source) with no scoring. | Auditing / importing into a CRM raw. |
-| `data/categories.csv` | The 17 target segments: why each is expanding/upgrading, what to pitch, who decides, Surat hotspots. | Territory & pitch planning. |
+| `data/categories.csv` | The 23 target segments: why each is expanding/upgrading, what to pitch, who decides, Surat hotspots. | Territory & pitch planning. |
 | `data/raw/*.psv` | Original per-segment files exactly as each research agent collected them (provenance). | Traceability. |
 | `data/_build_summary.txt` | Counts: totals, drops, dedupe, by-tier, by-category. | Sanity check. |
 | `docs/verification_protocol.md` | The fast pre-call verification routine. | Before dialing. |
@@ -65,8 +69,9 @@ fast, and with zero wasted dials on fake numbers.
 
 ## 🧭 How the list was built
 
-Seventeen research agents were fanned out **in parallel** (14 in a first wave,
-plus 3 net-new segments in a second), one per high-value Surat segment. Each agent searched the live web (company sites, JustDial,
+Twenty-three research agents were fanned out **in parallel** across three waves
+(14 broad segments, then 3 net-new ones, then 6 SME-only segments), one per
+segment. Each agent searched the live web (company sites, JustDial,
 IndiaMART, GoodFirms/Clutch/TechBehemoths, industry associations like GJEPC /
 SGCCI / FOSTTA, the Surat Diamond Bourse, and local news) and was bound by
 strict anti-fabrication rules: **no source URL → not included; never invent a
@@ -78,7 +83,7 @@ headquartered outside Surat** and any entry they couldn't anchor to a real page.
 
 ---
 
-## 🎯 The 17 target segments (and why they buy)
+## 🎯 The 23 target segments (and why they buy)
 
 High-end **compute** buyers (workstations / GPU / storage):
 **Lab-Grown Diamond**, **Diamond & Bourse** (planning software), **Architecture
@@ -90,6 +95,11 @@ High-end **compute** buyers (workstations / GPU / storage):
 **Finance & Professional**, **Hospitality & Real Estate**, **Retail &
 Supermarket**, **Automobile Dealership**, **Government & PSU** (Smart-City
 CCTV), and **BPO/Logistics/Print**.
+
+**SME / owner-run buyers** (billing PC + CCTV + Wi-Fi + AMC — your bread &
+butter): **Food & Hospitality**, **Wellness & Clinics**, **Local Retail**,
+**Professional Services**, **SME Manufacturing & Jobwork**, and **Diamond /
+Jewellery / Textile Micro-SME**.
 
 See [`data/categories.csv`](data/categories.csv) for the full why/what/who table.
 
